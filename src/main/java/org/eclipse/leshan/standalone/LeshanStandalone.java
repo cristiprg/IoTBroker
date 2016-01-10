@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.eclipse.leshan.standalone;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
@@ -29,6 +30,10 @@ import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.KeySpec;
+import java.util.HashMap;
+
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceInfo;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -137,6 +142,27 @@ public class LeshanStandalone {
         } catch (Exception e) {
             LOG.error("jetty error", e);
         }
+        
+        try {
+        	// highly inspired from http://stackoverflow.com/questions/12726801/avahi-not-able-to-find-service-creted-by-jmdns
+        	// because there is a bug with the other ways to publish the service
+        	
+        	String service_type = "_coap._udp.local.";
+        	String service_name = "BrokerService";
+        	int service_port = 5683;
+        	String service_key = "description";
+        	String service_text = "IoTBroker";
+        	HashMap<String, byte[]> properties = new HashMap<String, byte[]>();
+        	properties.put(service_key, service_text.getBytes());
+        	ServiceInfo service_info = ServiceInfo.create(service_type, service_name, service_port, 0, 0, true, properties);
+        	JmDNS jmdns = JmDNS.create("localhost"); 
+        	jmdns.registerService(service_info);
+        	
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
     }
 
     public void stop() {
