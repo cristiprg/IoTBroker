@@ -30,11 +30,22 @@ import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.KeySpec;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
+import org.eclipse.californium.core.CoapResource;
+import org.eclipse.californium.core.CoapServer;
+import org.eclipse.californium.core.network.Endpoint;
+import org.eclipse.californium.core.network.Exchange;
+import org.eclipse.californium.core.observe.ObserveRelation;
+import org.eclipse.californium.core.server.resources.Resource;
+import org.eclipse.californium.core.server.resources.ResourceAttributes;
+import org.eclipse.californium.core.server.resources.ResourceObserver;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -162,9 +173,13 @@ public class LeshanStandalone {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-    }
-
+        
+        CoapServer coapServer = lwServer.getCoapServer();
+        
+        // Here we have all the resources listed
+        coapServer.add(new VehicleRegisterResource("Register"));           
+    }   
+    
     public void stop() {
         try {
             lwServer.destroy();
