@@ -26,6 +26,8 @@ import org.eclipse.leshan.core.model.ResourceModel.Type;
 import org.eclipse.leshan.core.node.LwM2mNode;
 import org.eclipse.leshan.core.node.LwM2mSingleResource;
 import org.eclipse.leshan.core.observation.Observation;
+import org.eclipse.leshan.core.request.WriteRequest;
+import org.eclipse.leshan.core.request.WriteRequest.Mode;
 import org.eclipse.leshan.server.californium.impl.LeshanServer;
 import org.eclipse.leshan.server.client.Client;
 import org.eclipse.leshan.server.client.ClientRegistryListener;
@@ -59,6 +61,8 @@ public class EventServlet extends EventSourceServlet {
     private static final String QUERY_PARAM_ENDPOINT = "ep";
 
     private static final long serialVersionUID = 1L;
+    
+    private static final String TEXT_COLOR_TARGET = "/3341/0/5527";
 
     private static final Logger LOG = LoggerFactory.getLogger(EventServlet.class);
 
@@ -96,6 +100,10 @@ public class EventServlet extends EventSourceServlet {
         }
     };
 
+    public ObservationRegistryListener getObservationRegistryListener(){
+    	return this.observationRegistryListener;
+    }
+    
     private final ObservationRegistryListener observationRegistryListener = new ObservationRegistryListener() {
 
         @Override
@@ -135,15 +143,22 @@ public class EventServlet extends EventSourceServlet {
 					}
 
 					// if the resource is the "Parking Spot State", as indicated in the protocol proposal Table4, then we check the new state
+					LwM2mSingleResource node = null;
 					if (resourceID == 5703) {
 						switch (newState) {
 						case -100:
 							// change to free
 							brokerState.changeParkingSpotState(parkingSpotID, "free");
+							
+							node = LwM2mSingleResource.newResource(5527, "green", Type.STRING);
+							server.send(client, new WriteRequest(Mode.REPLACE, null, TEXT_COLOR_TARGET, node));
 							break;
 						case 100:
 							// change to occupied
-							brokerState.changeParkingSpotState(parkingSpotID, "occupied");
+							brokerState.changeParkingSpotState(parkingSpotID, "occupied");	
+							
+							node = LwM2mSingleResource.newResource(5527, "red", Type.STRING);
+							server.send(client, new WriteRequest(Mode.REPLACE, null, TEXT_COLOR_TARGET, node));
 							break;
 						default:
 							System.out.println("ERROR: Unkown state change " + newState);
