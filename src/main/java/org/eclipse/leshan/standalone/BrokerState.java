@@ -110,4 +110,23 @@ public class BrokerState {
 		
 		return freeSpots;
 	}
+	
+	
+	/**
+	 * Checks whether vehicle with ID licensePlate is registered or not
+	 * @param licensePlate
+	 * @return true is vehicle is registered, false otherwise
+	 */
+	public boolean isVehicleRegistered(String licensePlate){
+		return registeredVehicles.contains(licensePlate);
+	}
+	
+	/**
+	 * Checks whether parking spot with ID pID is registered or not
+	 * @param pID
+	 * @return true is parking spot is registered, false otherwise
+	 */
+	public boolean isParkingSpotRegistered(String pID){
+		return registeredParkingSpots.containsKey(pID);
+	}
 }

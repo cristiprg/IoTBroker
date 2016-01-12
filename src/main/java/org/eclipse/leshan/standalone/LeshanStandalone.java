@@ -180,6 +180,7 @@ public class LeshanStandalone {
         // Here we have all the resources listed
         coapServer.add(new VehicleRegisterResource("Register"));   
         coapServer.add(new GetFreeParkingSpotsResource("FreeParkingSpots"));
+        coapServer.add(new ReserveSpotResource("ReserveSpot"));
     }   
     
     public void stop() {
