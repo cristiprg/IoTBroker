@@ -160,7 +160,8 @@ public class EventServlet extends EventSourceServlet {
 						switch (newState) {
 						case -100:
 							// change to free
-							brokerState.changeParkingSpotState(parkingSpotID, "free");
+							brokerState.freeTheParkingSpot(parkingSpotID);
+							//brokerState.changeParkingSpotState(parkingSpotID, "free");
 							
 							node = LwM2mSingleResource.newResource(5527, "green", Type.STRING);
 							server.send(client, new WriteRequest(Mode.REPLACE, null, TEXT_COLOR_TARGET, node));

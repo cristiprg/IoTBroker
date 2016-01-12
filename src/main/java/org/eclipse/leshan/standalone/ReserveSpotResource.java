@@ -89,8 +89,11 @@ public class ReserveSpotResource extends CoapResource{
         cResponse.getObservation().addListener(eventServlet.getObservationRegistryListener());
 		
 		// 4. Change the internal state of parking spot to "reserved"
-		brokerState.changeParkingSpotState(parkingSpotID, "reserved");	
+		//brokerState.changeParkingSpotState(parkingSpotID, "reserved");
+        brokerState.reserverParkingSpotForVehicle(parkingSpotID, licensePlate);
 		log("Vehicle " + licensePlate + " successfully reserved " + parkingSpotID);
+		
+		// 5. Update reservation in the broker state		
 		
 		exchange.respond(ResponseCode.CREATED);
 	}

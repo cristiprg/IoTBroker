@@ -204,7 +204,9 @@ public class LeshanStandalone {
     	    	
     	// start watcher
     	System.out.println("Starting watcher ...");
-		new Thread(new StateWatcher(applicationWindow)).start();
+    	StateWatcher stateWatcher = new StateWatcher(applicationWindow);
+    	brokerState.setStateWatcher(stateWatcher);
+		new Thread(stateWatcher).start();
 		
     	System.out.println("OK!");
 }

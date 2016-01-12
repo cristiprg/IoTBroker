@@ -6,6 +6,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
+import javax.swing.Box;
+import javax.swing.JPanel;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.awt.FlowLayout;
+import javax.swing.JTextField;
+
+import org.eclipse.leshan.standalone.model.ParkingSpot;
 
 public class ApplicationWindow {
 
@@ -13,6 +21,12 @@ public class ApplicationWindow {
 	private JLabel freeSpotsValueLabel;
 	private JLabel reservedSpotsValueLabel;
 	private JLabel occupiedSpotsValueLabel;
+	private ArrayList<ParkingSpotLabel> parkingSpotLabels;
+	private JPanel panel;
+
+	public ArrayList<ParkingSpotLabel> getParkingSpotLabels() {
+		return parkingSpotLabels;
+	}
 
 	/**
 	 * Launch the application.
@@ -70,7 +84,12 @@ public class ApplicationWindow {
 		occupiedSpotsValueLabel.setBounds(368, 12, 70, 15);
 		frame.getContentPane().add(occupiedSpotsValueLabel);
 		
+		panel = new JPanel();
+		panel.setBounds(12, 39, 426, 224);
+		frame.getContentPane().add(panel);
 		frame.setVisible(true);
+		
+		parkingSpotLabels = new ArrayList<>();
 	}
 	public JLabel getFreeSpotsValueLabel() {
 		return freeSpotsValueLabel;
@@ -80,5 +99,9 @@ public class ApplicationWindow {
 	}
 	public JLabel getReservedSpotsValueLabel() {
 		return reservedSpotsValueLabel;
+	}
+
+	public JPanel getPanel() {
+		return panel;
 	}
 }

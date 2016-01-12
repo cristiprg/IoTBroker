@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.eclipse.leshan.standalone.BrokerState;
 import org.eclipse.leshan.standalone.gui.ApplicationWindow;
+import org.eclipse.leshan.standalone.gui.ParkingSpotLabel;
 import org.eclipse.leshan.standalone.model.ParkingSpot;
 
 /**
@@ -15,7 +16,6 @@ public class StateWatcher implements Runnable{
 	private BrokerState brokerState = BrokerState.getInstance();
 	private ApplicationWindow applicationWindow;
 	private ArrayList<ParkingSpot> registeredParkingSpots;
-	
 	
 	int nrFreeSpots = 0;
 	int nrReservedSpots = 0;
@@ -41,6 +41,9 @@ public class StateWatcher implements Runnable{
 			applicationWindow.getReservedSpotsValueLabel().setText(String.valueOf(nrReservedSpots));
 			applicationWindow.getOccupiedSpotsValueLabel().setText(String.valueOf(nrOccupiedSpots));
 			
+			// update the parking spot labels
+			updateParkingSpotLabels();
+			
 			// sleep for 900 ms, and if interrupted, break and exit
 			try {
 				Thread.sleep(900);
@@ -49,6 +52,13 @@ public class StateWatcher implements Runnable{
 			}
 		}
 		
+	}
+
+	private void updateParkingSpotLabels() {
+		//applicationWindow.getPanel().removeAll();
+		for (ParkingSpotLabel label : applicationWindow.getParkingSpotLabels()){
+			label.updateLabel();
+		}
 	}
 
 	private void updateNumberSpots() {
@@ -79,5 +89,11 @@ public class StateWatcher implements Runnable{
 		System.out.println("nrFreeSpots = " + nrFreeSpots);
 		System.out.println("nrOccupiedSpots = " + nrOccupiedSpots);
 		System.out.println("nrReservedSpots = " + nrReservedSpots);
+	}
+
+	public void parkingSpotRegistered(ParkingSpot parkingSpot) {
+		ParkingSpotLabel label = new ParkingSpotLabel(parkingSpot);
+		applicationWindow.getParkingSpotLabels().add(label);
+		applicationWindow.getPanel().add(label);
 	}
 }

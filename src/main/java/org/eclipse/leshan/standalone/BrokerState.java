@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.swing.text.html.HTMLDocument.HTMLReader.ParagraphAction;
 
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
+import org.eclipse.leshan.standalone.gui.util.StateWatcher;
 import org.eclipse.leshan.standalone.model.ParkingSpot;
 
 /**
@@ -52,6 +53,8 @@ public class BrokerState {
 	 * List of events related to state changes of parking spots 
 	 */
 	private ArrayList<String> eventsLog = new ArrayList<>();
+
+	private StateWatcher stateWatcher;
 	
 	private static BrokerState instance = null;
 	
@@ -96,6 +99,10 @@ public class BrokerState {
 	public boolean registerParkingSpot(String endpoint, String pID){
 		ParkingSpot parkingSpot = new ParkingSpot(endpoint, pID);
 		parkingSpotsArrayList.add(parkingSpot);
+		
+		if (stateWatcher != null){
+			stateWatcher.parkingSpotRegistered(parkingSpot);
+		}
 		
 		//parkingSpotIDEndpointMap.put(pID, endpoint);
 		//registeredParkingSpots.put(pID, "free");
@@ -218,5 +225,39 @@ public class BrokerState {
 		System.err.println("Could not find endpoint " + endpoint + " !!!");
 		
 		return "";
+	}
+
+	/**
+	 * Makes a reservation - spot id for vehicle
+	 * @param parkingSpotID
+	 * @param licensePlate
+	 */
+	public void reserverParkingSpotForVehicle(String parkingSpotID, String licensePlate) {
+		changeParkingSpotState(parkingSpotID, "reserved");
+		
+		// set licensePlate to parking spot
+		for(ParkingSpot spot : parkingSpotsArrayList){
+			if (spot.getpID().equals(parkingSpotID)){				
+				spot.setLicensePlate(licensePlate);
+				break;
+			}
+		}
+	}
+
+	public void setStateWatcher(StateWatcher stateWatcher) {
+		this.stateWatcher = stateWatcher;
+		
+	}
+
+	public void freeTheParkingSpot(String parkingSpotID) {		
+		changeParkingSpotState(parkingSpotID, "free");
+		
+		// set licensePlate to parking spot
+		for (ParkingSpot spot : parkingSpotsArrayList) {
+			if (spot.getpID().equals(parkingSpotID)) {
+				spot.setLicensePlate("");
+				break;
+			}
+		}
 	}
 }
