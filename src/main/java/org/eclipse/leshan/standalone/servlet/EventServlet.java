@@ -26,8 +26,10 @@ import org.eclipse.leshan.core.model.ResourceModel.Type;
 import org.eclipse.leshan.core.node.LwM2mNode;
 import org.eclipse.leshan.core.node.LwM2mSingleResource;
 import org.eclipse.leshan.core.observation.Observation;
+import org.eclipse.leshan.core.request.ReadRequest;
 import org.eclipse.leshan.core.request.WriteRequest;
 import org.eclipse.leshan.core.request.WriteRequest.Mode;
+import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.server.californium.impl.LeshanServer;
 import org.eclipse.leshan.server.client.Client;
 import org.eclipse.leshan.server.client.ClientRegistryListener;
@@ -40,6 +42,7 @@ import org.eclipse.leshan.standalone.servlet.log.CoapMessageListener;
 import org.eclipse.leshan.standalone.servlet.log.CoapMessageTracer;
 import org.eclipse.leshan.standalone.utils.EventSource;
 import org.eclipse.leshan.standalone.utils.EventSourceServlet;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +66,8 @@ public class EventServlet extends EventSourceServlet {
     private static final long serialVersionUID = 1L;
     
     private static final String TEXT_COLOR_TARGET = "/3341/0/5527";
+    private static final String PARKING_SPOT_ID_TARGET = "/32700/0/32800";
+    private static final long TIMEOUT = 5000; // ms
 
     private static final Logger LOG = LoggerFactory.getLogger(EventServlet.class);
 
@@ -83,8 +88,15 @@ public class EventServlet extends EventSourceServlet {
             String jClient = EventServlet.this.gson.toJson(client);
             sendEvent(EVENT_REGISTRATION, jClient, client.getEndpoint());
             
-            brokerState.registerParkingSpot(client.getEndpoint());
+            // Get the parking spot ID, which is different from client endpoint.
+            // For this, a request is sent to the client for the resource  PARKING_SPOT_ID_TARGET
+            ReadRequest request = new ReadRequest(PARKING_SPOT_ID_TARGET);
+            ReadResponse cResponse = server.send(client, request, TIMEOUT);
             
+            JSONObject obj = new JSONObject(cResponse);
+            String parkingSpotID = obj.getJSONObject("content").getString("value");
+            
+            brokerState.registerParkingSpot(parkingSpotID);                       
         }
 
         @Override
