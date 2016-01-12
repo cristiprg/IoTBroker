@@ -178,7 +178,8 @@ public class LeshanStandalone {
         CoapServer coapServer = lwServer.getCoapServer();
         
         // Here we have all the resources listed
-        coapServer.add(new VehicleRegisterResource("Register"));               
+        coapServer.add(new VehicleRegisterResource("Register"));   
+        coapServer.add(new GetFreeParkingSpotsResource("FreeParkingSpots"));
     }   
     
     public void stop() {

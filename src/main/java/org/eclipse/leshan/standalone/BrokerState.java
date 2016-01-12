@@ -3,6 +3,7 @@ package org.eclipse.leshan.standalone;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 
@@ -90,5 +91,23 @@ public class BrokerState {
 		registeredParkingSpots.put(pID, newState);
 		logParkingSpotEvent(pID + ", changed state to " + newState);
 		return true;
-	}	
+	}
+	
+	/**
+	 * Iterates over the list of parking spots and adds just the free ones.   
+	 * @return list of free parking spots
+	 */
+	public ArrayList<String> getFreeParkingSpots(){
+		ArrayList<String> freeSpots = new ArrayList<>();
+		
+		for(Map.Entry<String, String> entry : registeredParkingSpots.entrySet()){
+			String pID = entry.getKey();
+			String state = entry.getValue();
+			
+			if (state.equals("free"))
+				freeSpots.add(pID);
+		}
+		
+		return freeSpots;
+	}
 }
