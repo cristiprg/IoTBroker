@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.eclipse.leshan.standalone;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
@@ -52,6 +53,8 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.leshan.server.californium.LeshanServerBuilder;
 import org.eclipse.leshan.server.californium.impl.LeshanServer;
 import org.eclipse.leshan.server.impl.SecurityRegistryImpl;
+import org.eclipse.leshan.standalone.gui.ApplicationWindow;
+import org.eclipse.leshan.standalone.gui.util.StateWatcher;
 import org.eclipse.leshan.standalone.servlet.ClientServlet;
 import org.eclipse.leshan.standalone.servlet.EventServlet;
 import org.eclipse.leshan.standalone.servlet.ObjectSpecServlet;
@@ -67,6 +70,7 @@ public class LeshanStandalone {
     private Server server;
     private LeshanServer lwServer;
     private BrokerState brokerState = BrokerState.getInstance();
+    private ApplicationWindow applicationWindow;
 
     public void start() {
         // Use those ENV variables for specifying the interface to be bound for coap and coaps
@@ -191,8 +195,21 @@ public class LeshanStandalone {
             throw new RuntimeException(e);
         }
     }
+    
+    public LeshanStandalone() {
+		// start gui
+    	System.out.println("Starting GUI ...");
+    	applicationWindow = new ApplicationWindow();		
+    	System.out.println("OK!");
+    	    	
+    	// start watcher
+    	System.out.println("Starting watcher ...");
+		new Thread(new StateWatcher(applicationWindow)).start();
+		
+    	System.out.println("OK!");
+}
 
     public static void main(String[] args) {
-        new LeshanStandalone().start();
+        new LeshanStandalone().start();        
     }
 }

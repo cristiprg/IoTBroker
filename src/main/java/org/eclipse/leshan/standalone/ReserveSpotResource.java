@@ -73,7 +73,7 @@ public class ReserveSpotResource extends CoapResource{
 		}
 
 		// now, we have "licensePlate reserves parkingSpotID"
-		Client client = leshanServer.getClientRegistry().get(parkingSpotID);
+		Client client = leshanServer.getClientRegistry().get(brokerState.getEndpointByParkingSpotID(parkingSpotID));
 		
 		// 1. Leshan Server writes licenseplate to parkingspot
 		LwM2mSingleResource node = LwM2mSingleResource.newResource(32802, licensePlate, Type.STRING);			

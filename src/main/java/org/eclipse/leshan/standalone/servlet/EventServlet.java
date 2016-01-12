@@ -96,7 +96,7 @@ public class EventServlet extends EventSourceServlet {
             JSONObject obj = new JSONObject(cResponse);
             String parkingSpotID = obj.getJSONObject("content").getString("value");
             
-            brokerState.registerParkingSpot(parkingSpotID);                       
+            brokerState.registerParkingSpot(client.getEndpoint(), parkingSpotID);                       
         }
 
         @Override
@@ -140,7 +140,7 @@ public class EventServlet extends EventSourceServlet {
 				if (value instanceof LwM2mSingleResource) {
 					LwM2mSingleResource value2 = (LwM2mSingleResource) value;
 
-					String parkingSpotID = client.getEndpoint();
+					String parkingSpotID = brokerState.getParkingSpotByEndpoint(client.getEndpoint());
 					int resourceID = value2.getId();
 					
 					// type of newState is subject to change, for now, it is Float

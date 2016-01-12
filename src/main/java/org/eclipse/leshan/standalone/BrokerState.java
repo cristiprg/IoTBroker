@@ -29,6 +29,15 @@ public class BrokerState {
 	private HashMap<String, String> registeredParkingSpots = new HashMap<>();
 	
 	/**
+	 * Relation between parking spot id and its endpoint
+	 */
+	private HashMap<String, String> parkingSpotIDEndpointMap = new HashMap<>();
+	
+	public HashMap<String, String> getRegisteredParkingSpots() {
+		return registeredParkingSpots;
+	}
+
+	/**
 	 * List of events related to state changes of parking spots 
 	 */
 	private ArrayList<String> eventsLog = new ArrayList<>();
@@ -70,9 +79,11 @@ public class BrokerState {
 	/**
 	 * Registers a parking spot with its ID and logs a "parking spot registration" event.
 	 * @param pID
+	 * @param parkingSpotID 
 	 * @return true
 	 */
-	public boolean registerParkingSpot(String pID){
+	public boolean registerParkingSpot(String endpoint, String pID){
+		parkingSpotIDEndpointMap.put(pID, endpoint);
 		registeredParkingSpots.put(pID, "free");
 		logParkingSpotEvent(pID + ", registered");
 		return true;
@@ -111,7 +122,6 @@ public class BrokerState {
 		return freeSpots;
 	}
 	
-	
 	/**
 	 * Checks whether vehicle with ID licensePlate is registered or not
 	 * @param licensePlate
@@ -128,5 +138,34 @@ public class BrokerState {
 	 */
 	public boolean isParkingSpotRegistered(String pID){
 		return registeredParkingSpots.containsKey(pID);
+	}
+
+	
+	/**
+	 * 
+	 * @param parkingSpotID
+	 * @return
+	 */
+	public String getEndpointByParkingSpotID(String parkingSpotID) {		
+		return parkingSpotIDEndpointMap.get(parkingSpotID);
+	}
+	
+	/**
+	 * 
+	 * @param endpoint
+	 * @return
+	 */
+	public String getParkingSpotByEndpoint(String endpoint){
+		String __pID = "", __endpoint = "";
+		for (Map.Entry<String, String> e : parkingSpotIDEndpointMap.entrySet()) {
+		    __pID = e.getKey();
+		    __endpoint = e.getValue();
+		    
+		    if (endpoint.equals(__endpoint))
+		    	return __pID;
+		}
+		
+		System.err.println("Could not find endpoint " + endpoint + " !!!");
+		return "";
 	}
 }
