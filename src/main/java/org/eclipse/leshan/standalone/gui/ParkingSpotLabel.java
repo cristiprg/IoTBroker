@@ -34,6 +34,8 @@ public class ParkingSpotLabel extends JLabel {
 				parkingSpot.getpID() + " <br> " + 
 				parkingSpot.getLicensePlate() + " <br> " + 
 				parkingSpot.getBillingAmount() + " </body> </html>");
+		
+		setToolTipText(parkingSpot.getReport());
 	}
 	
 	

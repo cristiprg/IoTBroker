@@ -1,5 +1,7 @@
 package org.eclipse.leshan.standalone.model;
 
+import java.util.ArrayList;
+
 public class ParkingSpot {
 
 	private final String pID; 
@@ -7,13 +9,15 @@ public class ParkingSpot {
 	private String licensePlate;
 	private final String endpoint;
 	private float billingAmount;
+	private ArrayList<String> history;
 	
 	public ParkingSpot(String endpoint, String pID) {
 		this.pID = pID;
 		this.state = "free";
 		this.licensePlate = "";
 		this.endpoint = endpoint;
-		billingAmount = 0.01f;
+		billingAmount = 0;
+		history = new ArrayList<>();
 	}
 	
 	public String getState() {
@@ -22,6 +26,11 @@ public class ParkingSpot {
 
 	public void setState(String state) {
 		this.state = state;
+		
+		if (state.equals("free") && !licensePlate.equals("")){
+			history.add(licensePlate + " " + billingAmount + " $$$"); 			
+			billingAmount = 0;
+		}
 	}
 
 	public String getLicensePlate() {
@@ -46,5 +55,14 @@ public class ParkingSpot {
 
 	public String getEndpoint() {
 		return endpoint;
+	}
+	
+	public String getReport(){
+		StringBuilder s = new StringBuilder("<html>");
+		for (String str : history)
+			s.append(str + "<br>");
+		
+		s.append("</html>");
+		return s.toString();
 	}
 }
