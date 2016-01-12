@@ -66,6 +66,7 @@ public class LeshanStandalone {
 
     private Server server;
     private LeshanServer lwServer;
+    private BrokerState brokerState = BrokerState.getInstance();
 
     public void start() {
         // Use those ENV variables for specifying the interface to be bound for coap and coaps
@@ -177,7 +178,7 @@ public class LeshanStandalone {
         CoapServer coapServer = lwServer.getCoapServer();
         
         // Here we have all the resources listed
-        coapServer.add(new VehicleRegisterResource("Register"));           
+        coapServer.add(new VehicleRegisterResource("Register"));               
     }   
     
     public void stop() {

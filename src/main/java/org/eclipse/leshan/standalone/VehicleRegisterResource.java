@@ -12,15 +12,14 @@ import org.eclipse.californium.core.server.resources.CoapExchange;
 
 public class VehicleRegisterResource extends CoapResource {
 	
-	List<String> registeredVehicles = new ArrayList<>();
+	private BrokerState brokerState = BrokerState.getInstance();
 	
 	private void log(String message){
 		System.out.println("VehicleRegisterResource : "+ message);
 	}
 	
 	public VehicleRegisterResource(String name) {
-		super(name);
-		// TODO Auto-generated constructor stub
+		super(name);	
 	}
 	
 	@Override
@@ -38,18 +37,14 @@ public class VehicleRegisterResource extends CoapResource {
 		if (queryString.startsWith("DriverID=")){
 			String licensePlate = queryString.split("=")[1];
 			
-			if (registeredVehicles.contains(licensePlate)){							
-				exchange.respond(ResponseCode.BAD_OPTION);
-				
-				log("Vehicle " + licensePlate + " already registered!");
-			}
-			else{
-				registeredVehicles.add(licensePlate);
-				exchange.respond(ResponseCode.CREATED);
-				
+			if (brokerState.registerVehicle(licensePlate)){
+				exchange.respond(ResponseCode.CREATED);				
 				log("Vehicle " + licensePlate + " successfully registered!");
 			}
-			
+			else{
+				exchange.respond(ResponseCode.BAD_OPTION);				
+				log("Vehicle " + licensePlate + " already registered!");
+			}						
 		}
 	}
 }

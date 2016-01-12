@@ -22,12 +22,15 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.californium.core.network.Endpoint;
 import org.eclipse.jetty.util.ConcurrentHashSet;
+import org.eclipse.leshan.core.model.ResourceModel.Type;
 import org.eclipse.leshan.core.node.LwM2mNode;
+import org.eclipse.leshan.core.node.LwM2mSingleResource;
 import org.eclipse.leshan.core.observation.Observation;
 import org.eclipse.leshan.server.californium.impl.LeshanServer;
 import org.eclipse.leshan.server.client.Client;
 import org.eclipse.leshan.server.client.ClientRegistryListener;
 import org.eclipse.leshan.server.observation.ObservationRegistryListener;
+import org.eclipse.leshan.standalone.BrokerState;
 import org.eclipse.leshan.standalone.servlet.json.ClientSerializer;
 import org.eclipse.leshan.standalone.servlet.json.LwM2mNodeSerializer;
 import org.eclipse.leshan.standalone.servlet.log.CoapMessage;
@@ -66,6 +69,8 @@ public class EventServlet extends EventSourceServlet {
     private final LeshanServer server;
 
     private Set<LeshanEventSource> eventSources = new ConcurrentHashSet<>();
+    
+    private BrokerState brokerState = BrokerState.getInstance();
 
     private final ClientRegistryListener clientRegistryListener = new ClientRegistryListener() {
 
@@ -73,18 +78,21 @@ public class EventServlet extends EventSourceServlet {
         public void registered(Client client) {
             String jClient = EventServlet.this.gson.toJson(client);
             sendEvent(EVENT_REGISTRATION, jClient, client.getEndpoint());
+            
+            brokerState.registerParkingSpot(client.getEndpoint());
+            
         }
 
         @Override
         public void updated(Client clientUpdated) {
             String jClient = EventServlet.this.gson.toJson(clientUpdated);
-            sendEvent(EVENT_UPDATED, jClient, clientUpdated.getEndpoint());
+            sendEvent(EVENT_UPDATED, jClient, clientUpdated.getEndpoint());            
         };
 
         @Override
         public void unregistered(Client client) {
             String jClient = EventServlet.this.gson.toJson(client);
-            sendEvent(EVENT_DEREGISTRATION, jClient, client.getEndpoint());
+            sendEvent(EVENT_DEREGISTRATION, jClient, client.getEndpoint());                       
         }
     };
 
@@ -94,22 +102,58 @@ public class EventServlet extends EventSourceServlet {
         public void cancelled(Observation observation) {
         }
 
-        @Override
-        public void newValue(Observation observation, LwM2mNode value) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Received notification from [{}] containing value [{}]", observation.getPath(),
-                        value.toString());
-            }
-            Client client = server.getClientRegistry().findByRegistrationId(observation.getRegistrationId());
+		@Override
+		public void newValue(Observation observation, LwM2mNode value) {
+			if (LOG.isDebugEnabled()){
+				LOG.debug("Received notification from [{}] containing value [{}]", observation.getPath(),
+						value.toString());
+			}
+			Client client = server.getClientRegistry().findByRegistrationId(observation.getRegistrationId());
 
-            if (client != null) {
-                String data = new StringBuffer("{\"ep\":\"").append(client.getEndpoint()).append("\",\"res\":\"")
-                        .append(observation.getPath().toString()).append("\",\"val\":").append(gson.toJson(value))
-                        .append("}").toString();
+			if (client != null) {
+				String data = new StringBuffer("{\"ep\":\"").append(client.getEndpoint()).append("\",\"res\":\"")
+						.append(observation.getPath().toString()).append("\",\"val\":").append(gson.toJson(value))
+						.append("}").toString();
 
-                sendEvent(EVENT_NOTIFICATION, data, client.getEndpoint());
-            }
-        }
+				sendEvent(EVENT_NOTIFICATION, data, client.getEndpoint());
+
+				if (value instanceof LwM2mSingleResource) {
+					LwM2mSingleResource value2 = (LwM2mSingleResource) value;
+
+					String parkingSpotID = client.getEndpoint();
+					int resourceID = value2.getId();
+					
+					// type of newState is subject to change, for now, it is Float
+					//String newState = (String) value2.getValue();
+					int newState = 0;
+					
+					if (value2.getType() == Type.FLOAT){ 					
+						newState =  (int)( (Double) value2.getValue() ).intValue();
+					}
+					else{
+						System.out.println("not float ... NOOOO, it is " + String.valueOf(value2.getType()));
+					}
+
+					// if the resource is the "Parking Spot State", as indicated in the protocol proposal Table4, then we check the new state
+					if (resourceID == 5703) {
+						switch (newState) {
+						case -100:
+							// change to free
+							brokerState.changeParkingSpotState(parkingSpotID, "free");
+							break;
+						case 100:
+							// change to occupied
+							brokerState.changeParkingSpotState(parkingSpotID, "occupied");
+							break;
+						default:
+							System.out.println("ERROR: Unkown state change " + newState);
+							break;
+						}
+
+					}
+				}
+			}
+		}
 
         @Override
         public void newObservation(Observation observation) {
