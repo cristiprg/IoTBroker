@@ -1,9 +1,11 @@
 package org.eclipse.leshan.standalone.gui.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.leshan.standalone.BrokerState;
 import org.eclipse.leshan.standalone.gui.ApplicationWindow;
+import org.eclipse.leshan.standalone.model.ParkingSpot;
 
 /**
  * Thread that updates the GUI according to the broker state.
@@ -12,7 +14,7 @@ public class StateWatcher implements Runnable{
 
 	private BrokerState brokerState = BrokerState.getInstance();
 	private ApplicationWindow applicationWindow;
-	private HashMap<String, String> registeredParkingSpots;
+	private ArrayList<ParkingSpot> registeredParkingSpots;
 	
 	
 	int nrFreeSpots = 0;
@@ -55,8 +57,9 @@ public class StateWatcher implements Runnable{
 		nrReservedSpots = 0;
 		nrOccupiedSpots = 0;	
 		
-		for (String state : registeredParkingSpots.values()){
-			switch (state) {
+		for (ParkingSpot spot : registeredParkingSpots){
+			
+			switch (spot.getState()) {
 			case "free":
 				++nrFreeSpots;
 				break;

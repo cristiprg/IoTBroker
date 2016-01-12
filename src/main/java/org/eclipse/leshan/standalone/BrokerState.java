@@ -5,7 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.text.html.HTMLDocument.HTMLReader.ParagraphAction;
+
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
+import org.eclipse.leshan.standalone.model.ParkingSpot;
 
 /**
  * State of the broker - contains:
@@ -18,6 +21,11 @@ import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 public class BrokerState {
 
 	/**
+	 * List of registered parking spots;
+	 */
+	ArrayList<ParkingSpot> parkingSpotsArrayList = new ArrayList<>();
+	
+	/**
 	 * List of registered vehicles. Each entry represents the license plate number. 
 	 */
 	private ArrayList<String> registeredVehicles = new ArrayList<>();
@@ -26,15 +34,18 @@ public class BrokerState {
 	 * List of registered parking spots. Each entry is a <parking spot ID, state> pair.
 	 * The state is one of the following: "free", "occupied", "reserved".
 	 */
+	@Deprecated
 	private HashMap<String, String> registeredParkingSpots = new HashMap<>();
 	
 	/**
 	 * Relation between parking spot id and its endpoint
 	 */
+	@Deprecated
 	private HashMap<String, String> parkingSpotIDEndpointMap = new HashMap<>();
 	
-	public HashMap<String, String> getRegisteredParkingSpots() {
-		return registeredParkingSpots;
+	public ArrayList<ParkingSpot> getRegisteredParkingSpots() {
+		
+		return parkingSpotsArrayList;
 	}
 
 	/**
@@ -83,8 +94,11 @@ public class BrokerState {
 	 * @return true
 	 */
 	public boolean registerParkingSpot(String endpoint, String pID){
-		parkingSpotIDEndpointMap.put(pID, endpoint);
-		registeredParkingSpots.put(pID, "free");
+		ParkingSpot parkingSpot = new ParkingSpot(endpoint, pID);
+		parkingSpotsArrayList.add(parkingSpot);
+		
+		//parkingSpotIDEndpointMap.put(pID, endpoint);
+		//registeredParkingSpots.put(pID, "free");
 		logParkingSpotEvent(pID + ", registered");
 		return true;
 	}
@@ -96,12 +110,22 @@ public class BrokerState {
 	 * @return true
 	 */
 	public boolean changeParkingSpotState(String pID, String newState){
+		for(ParkingSpot spot : parkingSpotsArrayList){
+			if (spot.getpID().equals(pID)){
+				spot.setState(newState);
+				return true;
+			}
+		}
+		
+		
+		/*
 		if (!registeredParkingSpots.containsKey(pID))
 				System.err.println("Warning: changing state to unregistered parking spot! We register it for you because we are nice people ...");
 				
 		registeredParkingSpots.put(pID, newState);
-		logParkingSpotEvent(pID + ", changed state to " + newState);
-		return true;
+		logParkingSpotEvent(pID + ", changed state to " + newState);*/
+		//return true;
+		return false;
 	}
 	
 	/**
@@ -111,13 +135,19 @@ public class BrokerState {
 	public ArrayList<String> getFreeParkingSpots(){
 		ArrayList<String> freeSpots = new ArrayList<>();
 		
-		for(Map.Entry<String, String> entry : registeredParkingSpots.entrySet()){
+		for(ParkingSpot spot : parkingSpotsArrayList){
+			if (spot.getState().equals("free")){
+				freeSpots.add(spot.getpID());
+			}
+		}
+		
+		/*for(Map.Entry<String, String> entry : registeredParkingSpots.entrySet()){
 			String pID = entry.getKey();
 			String state = entry.getValue();
 			
 			if (state.equals("free"))
 				freeSpots.add(pID);
-		}
+		}*/			
 		
 		return freeSpots;
 	}
@@ -137,7 +167,14 @@ public class BrokerState {
 	 * @return true is parking spot is registered, false otherwise
 	 */
 	public boolean isParkingSpotRegistered(String pID){
-		return registeredParkingSpots.containsKey(pID);
+		for(ParkingSpot spot : parkingSpotsArrayList){
+			if (spot.getpID().equals(pID)){				
+				return true;
+			}
+		}
+		
+		return false;
+		//return registeredParkingSpots.containsKey(pID);
 	}
 
 	
@@ -146,8 +183,15 @@ public class BrokerState {
 	 * @param parkingSpotID
 	 * @return
 	 */
-	public String getEndpointByParkingSpotID(String parkingSpotID) {		
-		return parkingSpotIDEndpointMap.get(parkingSpotID);
+	public String getEndpointByParkingSpotID(String parkingSpotID) {
+		for(ParkingSpot spot : parkingSpotsArrayList){
+			if (spot.getpID().equals(parkingSpotID)){				
+				return spot.getEndpoint();
+			}
+		}
+		
+		return null;
+		//return parkingSpotIDEndpointMap.get(parkingSpotID);
 	}
 	
 	/**
@@ -156,7 +200,13 @@ public class BrokerState {
 	 * @return
 	 */
 	public String getParkingSpotByEndpoint(String endpoint){
-		String __pID = "", __endpoint = "";
+		for(ParkingSpot spot : parkingSpotsArrayList){
+			if (spot.getEndpoint().equals(endpoint)){				
+				return spot.getpID();
+			}
+		}
+		
+		/*String __pID = "", __endpoint = "";
 		for (Map.Entry<String, String> e : parkingSpotIDEndpointMap.entrySet()) {
 		    __pID = e.getKey();
 		    __endpoint = e.getValue();
@@ -164,8 +214,9 @@ public class BrokerState {
 		    if (endpoint.equals(__endpoint))
 		    	return __pID;
 		}
-		
+		*/
 		System.err.println("Could not find endpoint " + endpoint + " !!!");
+		
 		return "";
 	}
 }
