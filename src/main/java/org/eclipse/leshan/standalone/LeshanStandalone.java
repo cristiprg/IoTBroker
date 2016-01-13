@@ -50,8 +50,13 @@ import org.eclipse.californium.core.server.resources.ResourceObserver;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.leshan.core.model.ResourceModel.Type;
+import org.eclipse.leshan.core.node.LwM2mSingleResource;
+import org.eclipse.leshan.core.request.WriteRequest;
+import org.eclipse.leshan.core.request.WriteRequest.Mode;
 import org.eclipse.leshan.server.californium.LeshanServerBuilder;
 import org.eclipse.leshan.server.californium.impl.LeshanServer;
+import org.eclipse.leshan.server.client.Client;
 import org.eclipse.leshan.server.impl.SecurityRegistryImpl;
 import org.eclipse.leshan.standalone.gui.ApplicationWindow;
 import org.eclipse.leshan.standalone.gui.util.StateWatcher;
@@ -196,10 +201,16 @@ public class LeshanStandalone {
         }
     }
     
+    public void updateFirmware(String parkingSpotID, String typeOfDisplay){
+    	Client client = lwServer.getClientRegistry().get(brokerState.getEndpointByParkingSpotID(parkingSpotID));
+		LwM2mSingleResource node = LwM2mSingleResource.newResource(1, "/home/pi/iot_workspace/"+typeOfDisplay+".txt", Type.STRING);			
+		lwServer.send(client, new WriteRequest(Mode.REPLACE, null, "/5/0/1" , node));	
+    }
+    
     public LeshanStandalone() {
 		// start gui
     	System.out.println("Starting GUI ...");
-    	applicationWindow = new ApplicationWindow();		
+    	applicationWindow = new ApplicationWindow(this);		
     	System.out.println("OK!");
     	    	
     	// start watcher

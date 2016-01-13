@@ -13,7 +13,15 @@ import java.util.ArrayList;
 import java.awt.FlowLayout;
 import javax.swing.JTextField;
 
+import org.eclipse.leshan.core.model.ResourceModel.Type;
+import org.eclipse.leshan.core.node.LwM2mSingleResource;
+import org.eclipse.leshan.core.request.WriteRequest;
+import org.eclipse.leshan.core.request.WriteRequest.Mode;
+import org.eclipse.leshan.standalone.LeshanStandalone;
 import org.eclipse.leshan.standalone.model.ParkingSpot;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class ApplicationWindow {
 
@@ -23,6 +31,9 @@ public class ApplicationWindow {
 	private JLabel occupiedSpotsValueLabel;
 	private ArrayList<ParkingSpotLabel> parkingSpotLabels;
 	private JPanel panel;
+	private JTextField fwTextField;
+	private JLabel lblUseletterOr;
+	private LeshanStandalone theeBroker;
 
 	public ArrayList<ParkingSpotLabel> getParkingSpotLabels() {
 		return parkingSpotLabels;
@@ -31,7 +42,7 @@ public class ApplicationWindow {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -42,12 +53,13 @@ public class ApplicationWindow {
 				}
 			}
 		});
-	}
+	}*/
 
 	/**
 	 * Create the application.
 	 */
-	public ApplicationWindow() {
+	public ApplicationWindow(LeshanStandalone broker) {
+		this.theeBroker = broker;
 		initialize();
 	}
 
@@ -85,8 +97,32 @@ public class ApplicationWindow {
 		frame.getContentPane().add(occupiedSpotsValueLabel);
 		
 		panel = new JPanel();
-		panel.setBounds(12, 39, 426, 224);
+		panel.setBounds(12, 39, 426, 200);
 		frame.getContentPane().add(panel);
+		
+		JButton btnUpdateFw = new JButton("Update FW");
+		btnUpdateFw.addActionListener(new ActionListener() {
+			//TODO: refactor
+			public void actionPerformed(ActionEvent e) {
+				if (fwTextField.getText().equals("letter") || fwTextField.getText().equals("color")){				
+					for(ParkingSpotLabel label : parkingSpotLabels){
+						theeBroker.updateFirmware(label.parkingSpot.getpID(), fwTextField.getText());
+					}
+				}
+			}
+		});
+		btnUpdateFw.setBounds(321, 245, 117, 25);
+		frame.getContentPane().add(btnUpdateFw);
+		
+		fwTextField = new JTextField();
+		fwTextField.setText("letter");
+		fwTextField.setBounds(190, 248, 114, 19);
+		frame.getContentPane().add(fwTextField);
+		fwTextField.setColumns(10);
+		
+		lblUseletterOr = new JLabel("Use \"letter\" or \"color\"");
+		lblUseletterOr.setBounds(28, 250, 163, 15);
+		frame.getContentPane().add(lblUseletterOr);
 		frame.setVisible(true);
 		
 		parkingSpotLabels = new ArrayList<>();

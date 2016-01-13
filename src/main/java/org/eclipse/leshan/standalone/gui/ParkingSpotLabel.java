@@ -8,7 +8,7 @@ import org.eclipse.leshan.standalone.model.ParkingSpot;
 
 public class ParkingSpotLabel extends JLabel {
 
-	private ParkingSpot parkingSpot;
+	public ParkingSpot parkingSpot;
 	private final static DecimalFormat df = new DecimalFormat("0.00");
 	
 	public ParkingSpotLabel(ParkingSpot parkingSpot){
