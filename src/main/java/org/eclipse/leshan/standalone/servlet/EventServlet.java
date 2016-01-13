@@ -16,6 +16,9 @@
 package org.eclipse.leshan.standalone.servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +48,8 @@ import org.eclipse.leshan.standalone.utils.EventSourceServlet;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.eclipse.leshan.standalone.billInfo;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -165,6 +170,8 @@ public class EventServlet extends EventSourceServlet {
 							
 							node = LwM2mSingleResource.newResource(5527, "green", Type.STRING);
 							server.send(client, new WriteRequest(Mode.REPLACE, null, TEXT_COLOR_TARGET, node));
+							// calculate bill
+							billInfo.calculateBill(parkingSpotID);
 							break;
 						case 100:
 							// change to occupied
@@ -172,6 +179,8 @@ public class EventServlet extends EventSourceServlet {
 							
 							node = LwM2mSingleResource.newResource(5527, "red", Type.STRING);
 							server.send(client, new WriteRequest(Mode.REPLACE, null, TEXT_COLOR_TARGET, node));
+							// Update bill rate
+							billInfo.updateBillToPark(parkingSpotID);
 							break;
 						default:
 							System.out.println("ERROR: Unkown state change " + newState);

@@ -93,7 +93,8 @@ public class ReserveSpotResource extends CoapResource{
         brokerState.reserverParkingSpotForVehicle(parkingSpotID, licensePlate);
 		log("Vehicle " + licensePlate + " successfully reserved " + parkingSpotID);
 		
-		// 5. Update reservation in the broker state		
+		// 5. Start billing process
+		billInfo.startBilling(licensePlate, parkingSpotID);
 		
 		exchange.respond(ResponseCode.CREATED);
 	}

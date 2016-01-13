@@ -8,7 +8,7 @@ public class ParkingSpot {
 	private String state;
 	private String licensePlate;
 	private final String endpoint;
-	private float billingAmount;
+	private double billingAmount;
 	private ArrayList<String> history;
 	
 	public ParkingSpot(String endpoint, String pID) {
@@ -28,7 +28,7 @@ public class ParkingSpot {
 		this.state = state;
 		
 		if (state.equals("free") && !licensePlate.equals("")){
-			history.add(licensePlate + " " + billingAmount + " $$$"); 			
+			history.add(licensePlate + " " + billingAmount + " Eur"); 			
 			billingAmount = 0;
 		}
 	}
@@ -41,11 +41,11 @@ public class ParkingSpot {
 		this.licensePlate = licensePlate;
 	}
 
-	public float getBillingAmount() {
+	public double getBillingAmount() {
 		return billingAmount;
 	}
 
-	public void setBillingAmount(float billingAmount) {
+	public void setBillingAmount(double billingAmount) {
 		this.billingAmount = billingAmount;
 	}
 

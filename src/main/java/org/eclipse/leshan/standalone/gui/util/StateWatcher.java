@@ -7,6 +7,8 @@ import org.eclipse.leshan.standalone.BrokerState;
 import org.eclipse.leshan.standalone.gui.ApplicationWindow;
 import org.eclipse.leshan.standalone.gui.ParkingSpotLabel;
 import org.eclipse.leshan.standalone.model.ParkingSpot;
+import org.eclipse.leshan.standalone.billInfo;
+
 
 /**
  * Thread that updates the GUI according to the broker state.
@@ -44,6 +46,9 @@ public class StateWatcher implements Runnable{
 			// update the parking spot labels
 			updateParkingSpotLabels();
 			
+			// update bills
+			updateBills();
+			
 			// sleep for 900 ms, and if interrupted, break and exit
 			try {
 				Thread.sleep(900);
@@ -52,6 +57,14 @@ public class StateWatcher implements Runnable{
 			}
 		}
 		
+	}
+
+	private void updateBills() {
+		for(ParkingSpot spot : registeredParkingSpots){
+			
+			spot.setBillingAmount( billInfo.getBill(spot.getpID()));
+			
+		}
 	}
 
 	private void updateParkingSpotLabels() {
