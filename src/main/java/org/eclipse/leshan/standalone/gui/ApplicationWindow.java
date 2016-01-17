@@ -68,7 +68,7 @@ public class ApplicationWindow {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+		frame.setBounds(100, 100, 450, 597);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -97,7 +97,7 @@ public class ApplicationWindow {
 		frame.getContentPane().add(occupiedSpotsValueLabel);
 		
 		panel = new JPanel();
-		panel.setBounds(12, 39, 426, 200);
+		panel.setBounds(12, 39, 426, 479);
 		frame.getContentPane().add(panel);
 		
 		JButton btnUpdateFw = new JButton("Update FW");
@@ -111,17 +111,17 @@ public class ApplicationWindow {
 				}
 			}
 		});
-		btnUpdateFw.setBounds(321, 245, 117, 25);
+		btnUpdateFw.setBounds(321, 532, 117, 25);
 		frame.getContentPane().add(btnUpdateFw);
 		
 		fwTextField = new JTextField();
 		fwTextField.setText("letter");
-		fwTextField.setBounds(190, 248, 114, 19);
+		fwTextField.setBounds(190, 535, 114, 19);
 		frame.getContentPane().add(fwTextField);
 		fwTextField.setColumns(10);
 		
 		lblUseletterOr = new JLabel("Use \"letter\" or \"color\"");
-		lblUseletterOr.setBounds(28, 250, 163, 15);
+		lblUseletterOr.setBounds(28, 537, 163, 15);
 		frame.getContentPane().add(lblUseletterOr);
 		frame.setVisible(true);
 		
